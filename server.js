@@ -97,4 +97,8 @@ app.get("/api/admin/bookings", requireAdmin, (req, res) => {
   }
 
 });
-app.listen(PORT, () => console.log(`Website running at http://localhost:${PORT}`));
+
+
+app.listen(PORT, () => {
+  console.log(`Website running on port ${PORT}`);
+});
