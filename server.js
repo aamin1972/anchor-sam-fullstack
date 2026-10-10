@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const Booking = require("./models/Booking");
 require("dotenv").config();
 const session = require("express-session");
+const MongoStore = require("connect-mongo");
 const app = express();
 const PORT = process.env.PORT || 5000;
 const bookingsFile = path.join(__dirname, 'data', 'bookings.json');
@@ -18,10 +19,15 @@ mongoose
   });
 app.use(express.json());
 app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
+ session({
+  secret: process.env.SESSION_SECRET,
+
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI
+  }),
+
+  resave: false,
+  saveUninitialized: false,
     cookie: {
       httpOnly: true,
       sameSite: "lax"
