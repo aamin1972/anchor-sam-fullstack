@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const Booking = require("./models/Booking");
 require("dotenv").config();
 const session = require("express-session");
-const MongoStore = require("connect-mongo");
+const { MongoStore } = require("connect-mongo");
 const app = express();
 const PORT = process.env.PORT || 5000;
 const bookingsFile = path.join(__dirname, 'data', 'bookings.json');
