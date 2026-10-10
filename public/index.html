@@ -1,0 +1,45 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Anchor Sam | Professional Anchor & Host</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Permanent+Marker&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css"></head>
+<body>
+<header class="nav">
+  <a class="logo" href="#home">ANCHOR SAM<span>.</span></a>
+
+ <button class="menu-toggle" id="menuToggle" aria-label="Open menu">
+  <span></span>
+  <span></span>
+  <span></span>
+</button>
+
+  <nav id="mainNav">
+    <a href="#events">Events</a>
+    <a href="#why">Why Me</a>
+    <a href="#moments">Moments</a>
+    <a href="/admin.html">Dashboard Login</a>
+    <a class="nav-btn" href="#book">Book Now</a>
+  </nav>
+</header>
+<main id="home">
+<section class="hero">
+ <div class="hero-copy"><div class="host-name">ANCHOR SAM</div><div class="eyebrow">MAKE YOUR EVENT<br>MORE <b>ENGAGING & MEMORABLE</b></div><h1>Professional<br><em>ANCHOR</em><br>& HOST</h1><p class="traits">Engaging | Energetic | Interactive | Memorable</p><div class="chips"><span>🎙️ EVENT HOSTING</span><span>👥 AUDIENCE ENGAGEMENT</span><span>⭐ FUN ACTIVITIES</span></div><p class="script">Let's Make<br>Your Event Special!</p></div>
+ <div class="hero-photo"><img src="hero-host.png" alt="Professional event host on stage"><div class="paint">MORE THAN<br>JUST A HOST<small>I CREATE EXPERIENCES</small></div></div>
+</section>
+<section class="light" id="events"><h2>EVENTS <span>I HOST</span></h2><div class="events-layout"><div class="events-feature"><img src="events-host.png" alt="Energetic event host performing on stage"><div class="events-feature-label"><strong>ENERGY ON STAGE</strong><span>Interactive • Engaging • Memorable</span></div></div><div class="event-grid">
+<div class="event-card wedding"><b>💍</b><span>WEDDINGS</span></div><div class="event-card corporate"><b>💼</b><span>CORPORATE<br>EVENTS</span></div><div class="event-card college"><b>🎓</b><span>COLLEGE<br>EVENTS</span></div><div class="event-card birthday"><b>🎂</b><span>BIRTHDAY<br>PARTIES</span></div><div class="event-card cultural"><b>👥</b><span>CULTURAL<br>EVENTS</span></div><div class="event-card launch"><b>🚀</b><span>PRODUCT<br>LAUNCHES</span></div>
+</div></div></section>
+<section class="why" id="why"><h2>WHY <span>CHOOSE ME?</span></h2><div class="why-grid"><div><i>🎙️</i><p>Confident<br>Stage Presence</p></div><div><i>👥</i><p>Strong<br>Audience Connect</p></div><div><i>⚡</i><p>Energetic<br>& Interactive</p></div><div><i>⚙️</i><p>Customized<br>Hosting Style</p></div><div><i>♥</i><p>Professional<br>& Friendly</p></div><div><i>★</i><p>Memorable<br>Experience</p></div></div></section>
+<section class="moments" id="moments"><h2>REAL <span>MOMENTS</span></h2><div class="photos"><div><img src="reference-design.jpeg"></div><div><img src="reference-design.jpeg"></div><div><img src="reference-design.jpeg"></div><div><img src="reference-design.jpeg"></div></div></section>
+<section class="booking" id="book"><div class="book-copy"><span class="tag">LET'S MAKE IT MEMORABLE</span><h2>BOOK YOUR<br><strong>EVENT HOST</strong></h2><p>Tell me a little about your event. Send a booking request and I'll get back to you quickly.</p><div class="perks"><span>💬 Quick Response</span><span>🛡️ Flexible Packages</span><span>👥 Mumbai & Nearby</span></div></div><form id="bookingForm"><input name="name" placeholder="Your name *" required><input name="phone" placeholder="Phone / WhatsApp *" required><select name="eventType" required><option value="">Select event *</option><option>Wedding</option><option>Corporate Event</option><option>College Event</option><option>Birthday Party</option><option>Cultural Event</option><option>Product Launch</option><option>Other</option></select><input name="eventDate" type="date" required><input name="location" placeholder="Event location"><textarea name="message" placeholder="Tell me about your event"></textarea><button type="submit">📅 BOOK NOW →</button><p id="formMessage"></p></form></section>
+</main><footer>© 2026 Anchor Sam · Professional Anchor & Host · Make every event memorable.</footer>
+<script src="script.js"></script><script>
+  const menuToggle = document.getElementById("menuToggle");
+  const mainNav = document.getElementById("mainNav");
+
+  menuToggle.addEventListener("click", () => {
+  mainNav.classList.toggle("active");
+});
+  mainNav.querySelectorAll("a").forEach(link => {
+    link.addEventListener("click", () => {
+      mainNav.classList.remove("active");
+      menuToggle.textContent = "☰";
+    });
+  });
+</script></body></html>

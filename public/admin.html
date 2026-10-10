@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Anchor Sam | Admin Login</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top right, #29200c 0%, transparent 35%),
+        #090909;
+      color: white;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 430px;
+    }
+
+    .brand {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .brand h1 {
+      font-size: 34px;
+      font-weight: 900;
+      letter-spacing: 1px;
+    }
+
+    .brand h1 span {
+      color: #f5bd31;
+    }
+
+    .brand p {
+      color: #888;
+      margin-top: 8px;
+      font-size: 14px;
+    }
+
+    .login-card {
+      background: #141414;
+      border: 1px solid #2b2b2b;
+      border-radius: 18px;
+      padding: 35px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .admin-icon {
+      width: 65px;
+      height: 65px;
+      margin: 0 auto 20px;
+
+      background: rgba(245, 189, 49, 0.12);
+      border: 1px solid #f5bd31;
+      border-radius: 50%;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      font-size: 28px;
+    }
+
+    .login-card h2 {
+      text-align: center;
+      font-size: 25px;
+      margin-bottom: 8px;
+    }
+
+    .login-card .subtitle {
+      text-align: center;
+      color: #888;
+      font-size: 14px;
+      margin-bottom: 30px;
+    }
+
+    .input-group {
+      margin-bottom: 18px;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: #ccc;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 14px 15px;
+
+      border: 1px solid #333;
+      border-radius: 9px;
+
+      background: #0c0c0c;
+      color: white;
+
+      font-size: 15px;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    .input-group input:focus {
+      border-color: #f5bd31;
+      box-shadow: 0 0 0 3px rgba(245, 189, 49, 0.08);
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 14px;
+
+      background: linear-gradient(135deg, #f5bd31, #ffcf55);
+      color: #111;
+
+      border: none;
+      border-radius: 9px;
+
+      font-size: 16px;
+      font-weight: 800;
+
+      cursor: pointer;
+      transition: 0.25s;
+
+      margin-top: 5px;
+    }
+
+    .login-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(245, 189, 49, 0.25);
+    }
+
+    #message {
+      text-align: center;
+      margin-top: 18px;
+      color: #ff6565;
+      font-size: 14px;
+      min-height: 18px;
+    }
+
+    .back-link {
+      text-align: center;
+      margin-top: 22px;
+    }
+
+    .back-link a {
+      color: #aaa;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .back-link a:hover {
+      color: #f5bd31;
+    }
+
+    @media (max-width: 500px) {
+      .login-card {
+        padding: 28px 22px;
+      }
+
+      .brand h1 {
+        font-size: 29px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="login-container">
+
+    <div class="brand">
+      <h1>ANCHOR <span>SAM</span></h1>
+      <p>Professional Event Hosting</p>
+    </div>
+
+    <div class="login-card">
+
+      <div class="admin-icon">🔐</div>
+
+      <h2>Admin Login</h2>
+
+      <p class="subtitle">
+        Sign in to manage your event bookings
+      </p>
+
+      <form id="adminLoginForm">
+
+        <div class="input-group">
+          <label>Username</label>
+
+          <input
+            type="text"
+            id="username"
+            placeholder="Enter username"
+            autocomplete="username"
+            required
+          >
+        </div>
+
+        <div class="input-group">
+          <label>Password</label>
+
+          <input
+            type="password"
+            id="password"
+            placeholder="Enter password"
+            autocomplete="current-password"
+            required
+          >
+        </div>
+
+        <button class="login-btn" type="submit">
+          Login to Dashboard
+        </button>
+
+      </form>
+
+      <p id="message"></p>
+
+    </div>
+
+    <div class="back-link">
+      <a href="/">← Back to Anchor Sam Website</a>
+    </div>
+
+  </div>
+
+
+  <script>
+    document
+      .getElementById("adminLoginForm")
+      .addEventListener("submit", async (e) => {
+
+        e.preventDefault();
+
+        const username =
+          document.getElementById("username").value;
+
+        const password =
+          document.getElementById("password").value;
+
+        const message =
+          document.getElementById("message");
+
+        message.textContent = "Checking...";
+
+        try {
+
+          const response = await fetch("/api/admin/login", {
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+              username,
+              password
+            })
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+
+            message.style.color = "#f5bd31";
+            message.textContent = "Login successful...";
+
+            setTimeout(() => {
+              window.location.href = "/dashboard.html";
+            }, 500);
+
+          } else {
+
+            message.style.color = "#ff6565";
+            message.textContent =
+              data.message || "Invalid username or password";
+
+          }
+
+        } catch (error) {
+
+          message.style.color = "#ff6565";
+          message.textContent =
+            "Unable to connect to server.";
+
+        }
+      });
+  </script>
+
+</body>
+</html>
