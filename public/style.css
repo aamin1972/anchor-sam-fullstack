@@ -285,3 +285,48 @@
     padding: 0;
   }
 }
+
+/* Wedding Gallery Popup */
+.wedding-gallery {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.95);
+  overflow-y: auto;
+  padding: 70px 20px 30px;
+}
+
+.wedding-gallery.active {
+  display: block;
+}
+
+.gallery-content {
+  max-width: 1000px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.gallery-content img {
+  width: 100%;
+  border-radius: 12px;
+  border: 2px solid #f5bd31;
+}
+
+.gallery-close {
+  position: fixed;
+  top: 20px;
+  right: 30px;
+  color: #f5bd31;
+  font-size: 45px;
+  cursor: pointer;
+  z-index: 10000;
+}
+
+@media (max-width: 600px) {
+  .gallery-content {
+    grid-template-columns: 1fr;
+  }
+}

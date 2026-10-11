@@ -156,6 +156,31 @@
       font-weight: bold;
     }
 
+
+    .action-btn {
+  border: none;
+  padding: 8px 11px;
+  margin: 2px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.confirm-btn {
+  background: #f5bd31;
+  color: #111;
+}
+
+.complete-btn {
+  background: #2ecc71;
+  color: #111;
+}
+
+.cancel-btn {
+  background: #e74c3c;
+  color: white;
+}
+   
     .empty-message {
       padding: 45px;
       text-align: center;
@@ -373,21 +398,28 @@
               </span>
             </td>
 
-            <td>
-              <button
-                style="
-                  background:#f5bd31;
-                  color:#111;
-                  border:none;
-                  padding:8px 14px;
-                  border-radius:6px;
-                  font-weight:bold;
-                  cursor:pointer;
-                "
-              >
-                View
-              </button>
-            </td>
+          <td>
+  <button
+    class="action-btn confirm-btn"
+    onclick="updateStatus('${booking._id}', 'Confirmed')"
+  >
+    Confirm
+  </button>
+
+  <button
+    class="action-btn complete-btn"
+    onclick="updateStatus('${booking._id}', 'Completed')"
+  >
+    Complete
+  </button>
+
+  <button
+    class="action-btn cancel-btn"
+    onclick="updateStatus('${booking._id}', 'Cancelled')"
+  >
+    Cancel
+  </button>
+</td>
           `;
 
           bookingTable.appendChild(row);
@@ -401,6 +433,39 @@
         "Unable to load bookings.";
     }
   }
+
+async function updateStatus(bookingId, status) {
+  try {
+    const response = await fetch(
+      `/api/admin/bookings/${bookingId}/status`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ status })
+      }
+    );
+
+    if (response.status === 401) {
+      window.location.href = "/admin.html";
+      return;
+    }
+
+    if (!response.ok) {
+      throw new Error("Unable to update status");
+    }
+
+    // Reload dashboard with updated status
+    await loadBookings();
+
+  } catch (error) {
+    console.error(error);
+    alert("Unable to update booking status.");
+  }
+}
+
+
 
   loadBookings();
 

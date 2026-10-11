@@ -121,6 +121,53 @@ app.get("/api/admin/bookings", requireAdmin, async (req, res) => {
   }
 });
 
+// Update booking status
+app.patch("/api/admin/bookings/:id/status", requireAdmin, async (req, res) => {
+  try {
+    const { status } = req.body;
+
+    const allowedStatuses = [
+      "New",
+      "Confirmed",
+      "Completed",
+      "Cancelled"
+    ];
+
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid booking status"
+      });
+    }
+
+    const booking = await Booking.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message: "Booking not found"
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Booking status updated",
+      booking
+    });
+
+  } catch (error) {
+    console.error("Status update error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Unable to update booking status"
+    });
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Website running on port ${PORT}`);
