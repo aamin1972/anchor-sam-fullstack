@@ -217,6 +217,121 @@
         font-size: 20px;
       }
     }
+/* Wedding Gallery Upload Card */
+.upload-card {
+  margin: 25px 0;
+  padding: 25px;
+  background: linear-gradient(145deg, #171717, #0d0d0d);
+  border: 1px solid rgba(245, 189, 49, 0.35);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.upload-card h2 {
+  margin: 0 0 6px;
+  color: #f5bd31;
+  font-size: 24px;
+}
+
+.upload-card p {
+  margin: 0 0 18px;
+  color: #aaa;
+}
+
+#weddingPhotoInput {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px;
+  margin-bottom: 15px;
+  background: #101010;
+  color: #ddd;
+  border: 1px dashed #555;
+  border-radius: 10px;
+}
+
+#weddingPhotoInput::file-selector-button {
+  padding: 10px 16px;
+  margin-right: 12px;
+  background: #252525;
+  color: #f5bd31;
+  border: 1px solid #f5bd31;
+  border-radius: 7px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+#weddingPhotoInput::file-selector-button:hover {
+  background: #f5bd31;
+  color: #111;
+}
+
+.upload-btn {
+  padding: 11px 22px;
+  background: #f5bd31;
+  color: #111;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.upload-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(245, 189, 49, 0.25);
+}
+
+#uploadMessage {
+  margin: 14px 0 0;
+  color: #f5bd31;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.admin-wedding-photos {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.admin-photo-card {
+  overflow: hidden;
+  background: #111;
+  border: 1px solid rgba(245, 189, 49, 0.35);
+  border-radius: 10px;
+}
+
+.admin-photo-card img {
+  width: 100%;
+  height: 150px;
+  display: block;
+  object-fit: cover;
+}
+
+.remove-photo-btn {
+  width: 100%;
+  padding: 9px;
+  border: 0;
+  background: #c92b2b;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  .upload-card {
+    padding: 18px;
+  }
+
+  .upload-btn {
+    width: 100%;
+  }
+}
+
+
+
   </style>
 </head>
 
@@ -283,6 +398,7 @@
 
       <div class="table-wrapper">
 
+
         <table>
 
           <thead>
@@ -308,6 +424,25 @@
         </div>
 
       </div>
+
+     <div class="upload-card">
+  <h2>Wedding Gallery</h2>
+  <p>Add photos to the Wedding event gallery</p>
+
+  <input
+    type="file"
+    id="weddingPhotoInput"
+    accept="image/*"
+  >
+
+  <button id="uploadWeddingPhoto" class="upload-btn">
+    Upload Photo
+  </button>
+
+  <p id="uploadMessage"></p>
+<div id="adminWeddingPhotos" class="admin-wedding-photos"></div>
+
+</div>      
 
     </section>
 
@@ -479,6 +614,124 @@ async function updateStatus(bookingId, status) {
       window.location.href = "/admin.html";
 
     });
+  
+    document
+  .getElementById("uploadWeddingPhoto")
+  .addEventListener("click", async () => {
+
+    const input = document.getElementById("weddingPhotoInput");
+    const message = document.getElementById("uploadMessage");
+
+    if (!input.files[0]) {
+      message.textContent = "Please select a photo first.";
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("photo", input.files[0]);
+
+    message.textContent = "Uploading...";
+
+    try {
+      const response = await fetch("/api/admin/wedding-photos", {
+        method: "POST",
+        body: formData
+      });
+
+      if (response.status === 401) {
+        window.location.href = "/admin.html";
+        return;
+      }
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        message.textContent = data.message || "Upload failed.";
+        return;
+      }
+
+      message.textContent = "Photo uploaded successfully! ✅";
+      input.value = "";
+
+    } catch (error) {
+      console.error(error);
+      message.textContent = "Unable to upload photo.";
+    }
+  });
+
+async function loadAdminWeddingPhotos() {
+  const container = document.getElementById("adminWeddingPhotos");
+
+  try {
+    const response = await fetch("/api/wedding-photos");
+    const photos = await response.json();
+
+    container.innerHTML = "";
+
+    photos.forEach((photo) => {
+      const card = document.createElement("div");
+      card.className = "admin-photo-card";
+
+      const img = document.createElement("img");
+      img.src = photo.imageUrl;
+      img.alt = "Wedding Photo";
+
+      const removeBtn = document.createElement("button");
+      removeBtn.className = "remove-photo-btn";
+      removeBtn.textContent = "Remove";
+
+      removeBtn.addEventListener("click", () => {
+        deleteWeddingPhoto(photo._id);
+      });
+
+      card.appendChild(img);
+      card.appendChild(removeBtn);
+      container.appendChild(card);
+    });
+
+  } catch (error) {
+    console.error("Unable to load wedding photos:", error);
+  }
+}
+
+
+async function deleteWeddingPhoto(photoId) {
+  const confirmDelete = confirm(
+    "Are you sure you want to remove this photo?"
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+    const response = await fetch(
+      `/api/admin/wedding-photos/${photoId}`,
+      {
+        method: "DELETE"
+      }
+    );
+
+    if (response.status === 401) {
+      window.location.href = "/admin.html";
+      return;
+    }
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.message || "Unable to delete photo.");
+      return;
+    }
+
+    await loadAdminWeddingPhotos();
+
+  } catch (error) {
+    console.error(error);
+    alert("Unable to delete photo.");
+  }
+}
+
+loadAdminWeddingPhotos();
+
 </script>
 </body>
 </html>

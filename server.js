@@ -9,6 +9,25 @@ const { MongoStore } = require("connect-mongo");
 const app = express();
 const PORT = process.env.PORT || 5000;
 const bookingsFile = path.join(__dirname, 'data', 'bookings.json');
+
+const multer = require("multer");
+const cloudinary = require("./config/cloudinary");
+const WeddingPhoto = require("./models/WeddingPhoto");
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith("image/")) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only image files are allowed"));
+    }
+  }
+});
+
 mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => {
@@ -103,6 +122,111 @@ function requireAdmin(req, res, next) {
   });
 }
 
+app.post(
+  "/api/admin/wedding-photos",
+  requireAdmin,
+  upload.single("photo"),
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          message: "Please select a photo"
+        });
+      }
+
+      const uploadResult = await new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            folder: "anchor-sam/weddings"
+          },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+
+        stream.end(req.file.buffer);
+      });
+
+      const photo = await WeddingPhoto.create({
+        imageUrl: uploadResult.secure_url,
+        publicId: uploadResult.public_id
+      });
+
+      res.status(201).json({
+        success: true,
+        message: "Wedding photo uploaded successfully",
+        photo
+      });
+
+    } catch (error) {
+      console.error("Wedding photo upload error:", error);
+
+      res.status(500).json({
+        success: false,
+        message: "Unable to upload wedding photo"
+      });
+    }
+  }
+);
+
+
+
+// Public Wedding Gallery Photos
+app.get("/api/wedding-photos", async (req, res) => {
+  try {
+    const photos = await WeddingPhoto.find()
+      .sort({ createdAt: -1 });
+
+    res.json(photos);
+
+  } catch (error) {
+    console.error("Wedding photos read error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Unable to load wedding photos"
+    });
+  }
+});
+
+// Admin - Delete Wedding Photo
+app.delete(
+  "/api/admin/wedding-photos/:id",
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const photo = await WeddingPhoto.findById(req.params.id);
+
+      if (!photo) {
+        return res.status(404).json({
+          success: false,
+          message: "Photo not found"
+        });
+      }
+
+      // Delete from Cloudinary
+      await cloudinary.uploader.destroy(photo.publicId);
+
+      // Delete from MongoDB
+      await WeddingPhoto.findByIdAndDelete(req.params.id);
+
+      res.json({
+        success: true,
+        message: "Photo deleted successfully"
+      });
+
+    } catch (error) {
+      console.error("Wedding photo delete error:", error);
+
+      res.status(500).json({
+        success: false,
+        message: "Unable to delete photo"
+      });
+    }
+  }
+);
 
 // Get all bookings for Admin Dashboard
 // Get all bookings for Admin Dashboard
