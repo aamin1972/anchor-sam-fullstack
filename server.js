@@ -9,6 +9,8 @@ const { MongoStore } = require("connect-mongo");
 const app = express();
 const PORT = process.env.PORT || 5000;
 const bookingsFile = path.join(__dirname, 'data', 'bookings.json');
+const bcrypt = require("bcrypt");
+const User = require("./models/User");
 
 const multer = require("multer");
 const cloudinary = require("./config/cloudinary");
@@ -66,6 +68,7 @@ app.post('/api/bookings', async (req, res) => {
     }
 
     const booking = await Booking.create({
+      userId: req.session.userId || null,
       name,
       phone,
       eventType,
@@ -89,6 +92,181 @@ app.post('/api/bookings', async (req, res) => {
 });
 app.get('/api/health', (_, res) => res.json({status:'ok'}));
 // app.get('*', (_, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+
+// User Signup
+app.post("/api/signup", async (req, res) => {
+  try {
+    const { fullName, email, password } = req.body;
+
+    if (!fullName || !email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Please fill all fields"
+      });
+    }
+
+    const existingUser = await User.findOne({
+      email: email.toLowerCase()
+    });
+
+    if (existingUser) {
+      return res.status(409).json({
+        success: false,
+        message: "Email already registered"
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    const user = await User.create({
+      fullName,
+      email: email.toLowerCase(),
+      password: hashedPassword
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Account created successfully",
+      user: {
+        id: user._id,
+        fullName: user.fullName,
+        email: user.email
+      }
+    });
+
+  } catch (error) {
+    console.error("Signup error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Unable to create account"
+    });
+  }
+});
+
+// User Login
+app.post("/api/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Please enter email and password"
+      });
+    }
+
+    const user = await User.findOne({
+      email: email.toLowerCase()
+    });
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid email or password"
+      });
+    }
+
+    const passwordMatch = await bcrypt.compare(
+      password,
+      user.password
+    );
+
+    if (!passwordMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid email or password"
+      });
+    }
+
+    req.session.userId = user._id.toString();
+
+    res.json({
+      success: true,
+      message: "Login successful",
+      user: {
+        id: user._id,
+        fullName: user.fullName,
+        email: user.email
+      }
+    });
+
+  } catch (error) {
+    console.error("User login error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Unable to login"
+    });
+  }
+});
+
+
+// Get Current Logged-in User
+app.get("/api/me", async (req, res) => {
+  try {
+    if (!req.session.userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Please login first"
+      });
+    }
+
+    const user = await User.findById(req.session.userId)
+      .select("-password");
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    res.json({
+      success: true,
+      user
+    });
+
+  } catch (error) {
+    console.error("Current user error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Unable to load account"
+    });
+  }
+});
+
+// Logged-in User Bookings
+app.get("/api/my-bookings", async (req, res) => {
+  try {
+    if (!req.session.userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Please login first"
+      });
+    }
+
+    const bookings = await Booking.find({
+      userId: req.session.userId
+    }).sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      bookings
+    });
+
+  } catch (error) {
+    console.error("My bookings error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Unable to load bookings"
+    });
+  }
+});
+
+
 app.post("/api/admin/login", (req, res) => {
   const { username, password } = req.body;
 

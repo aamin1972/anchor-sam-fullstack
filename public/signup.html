@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account | Anchor Sam</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: #080808;
+      color: #fff;
+      font-family: Arial, sans-serif;
+    }
+
+    .signup-card {
+      width: 100%;
+      max-width: 430px;
+      padding: 35px;
+      background: #111;
+      border: 1px solid rgba(245, 189, 49, 0.35);
+      border-radius: 18px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .brand {
+      margin-bottom: 25px;
+      text-align: center;
+      color: #f5bd31;
+      font-size: 26px;
+      font-weight: 900;
+    }
+
+    h1 {
+      margin-bottom: 8px;
+      text-align: center;
+      font-size: 28px;
+    }
+
+    .subtitle {
+      margin-bottom: 28px;
+      text-align: center;
+      color: #999;
+      font-size: 14px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 7px;
+      color: #ddd;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    input {
+      width: 100%;
+      padding: 13px 14px;
+      background: #0a0a0a;
+      color: #fff;
+      border: 1px solid #333;
+      border-radius: 9px;
+      outline: none;
+      font-size: 15px;
+    }
+
+    input:focus {
+      border-color: #f5bd31;
+    }
+
+    .signup-btn {
+      width: 100%;
+      margin-top: 5px;
+      padding: 13px;
+      background: #f5bd31;
+      color: #111;
+      border: none;
+      border-radius: 9px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .signup-btn:hover {
+      background: #ffd15c;
+    }
+
+    #message {
+      min-height: 20px;
+      margin-top: 15px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .login-link {
+      margin-top: 20px;
+      text-align: center;
+      color: #999;
+      font-size: 14px;
+    }
+
+    .login-link a {
+      color: #f5bd31;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .back-home {
+      display: block;
+      margin-top: 18px;
+      text-align: center;
+      color: #777;
+      text-decoration: none;
+      font-size: 13px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="signup-card">
+
+    <div class="brand">ANCHOR SAM.</div>
+
+    <h1>Create Account</h1>
+    <p class="subtitle">Create your account to get started</p>
+
+    <form id="signupForm">
+
+      <div class="form-group">
+        <label for="fullName">Full Name</label>
+        <input
+          type="text"
+          id="fullName"
+          placeholder="Enter your full name"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          type="email"
+          id="email"
+          placeholder="Enter your email"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          placeholder="Create a password"
+          minlength="6"
+          required
+        >
+      </div>
+
+      <button type="submit" class="signup-btn">
+        Create Account
+      </button>
+
+      <p id="message"></p>
+
+    </form>
+
+    <p class="login-link">
+      Already have an account?
+      <a href="/login.html">Login</a>
+    </p>
+
+    <a href="/" class="back-home">← Back to Home</a>
+
+  </div>
+
+  <script>
+    const signupForm = document.getElementById("signupForm");
+    const message = document.getElementById("message");
+
+    signupForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const fullName = document.getElementById("fullName").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      message.textContent = "Creating account...";
+      message.style.color = "#f5bd31";
+
+      try {
+        const response = await fetch("/api/signup", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            fullName,
+            email,
+            password
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          message.textContent = data.message || "Signup failed";
+          message.style.color = "#ff5c5c";
+          return;
+        }
+
+        message.textContent = "Account created successfully! ✓";
+        message.style.color = "#4ade80";
+
+        signupForm.reset();
+
+      } catch (error) {
+        console.error(error);
+        message.textContent = "Unable to create account.";
+        message.style.color = "#ff5c5c";
+      }
+    });
+  </script>
+
+</body>
+</html>

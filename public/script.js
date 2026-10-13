@@ -33,42 +33,6 @@ async function loadWeddingPhotos() {
   }
 }
 
-// Admin - Delete Wedding Photo
-app.delete(
-  "/api/admin/wedding-photos/:id",
-  requireAdmin,
-  async (req, res) => {
-    try {
-      const photo = await WeddingPhoto.findById(req.params.id);
-
-      if (!photo) {
-        return res.status(404).json({
-          success: false,
-          message: "Photo not found"
-        });
-      }
-
-      // Delete image from Cloudinary
-      await cloudinary.uploader.destroy(photo.publicId);
-
-      // Delete record from MongoDB
-      await WeddingPhoto.findByIdAndDelete(req.params.id);
-
-      res.json({
-        success: true,
-        message: "Photo deleted successfully"
-      });
-
-    } catch (error) {
-      console.error("Wedding photo delete error:", error);
-
-      res.status(500).json({
-        success: false,
-        message: "Unable to delete photo"
-      });
-    }
-  }
-);
 
 async function openWeddingGallery() {
   document
@@ -84,3 +48,25 @@ function closeWeddingGallery() {
   document.getElementById("weddingGallery").classList.remove("active");
   document.body.style.overflow = "";
 }
+
+
+async function updateUserNavbar() {
+  try {
+    const response = await fetch("/api/me");
+    const userNavLink = document.getElementById("userNavLink");
+
+    if (!userNavLink) return;
+
+    if (response.ok) {
+      userNavLink.textContent = "My Account";
+      userNavLink.href = "/account.html";
+    } else {
+      userNavLink.textContent = "Login";
+      userNavLink.href = "/login.html";
+    }
+  } catch (error) {
+    console.error("Navbar user check error:", error);
+  }
+}
+
+updateUserNavbar();
